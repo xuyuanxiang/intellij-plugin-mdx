@@ -1,11 +1,31 @@
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.15'
+    id 'org.jetbrains.grammarkit' version '2019.2'
 }
+apply plugin: 'java'
+apply plugin: 'org.jetbrains.grammarkit'
+apply plugin: 'org.jetbrains.intellij'
+
+import org.jetbrains.grammarkit.tasks.*
+
 group 'com.github.xuyuanxiang'
 version '0.0.1'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'src/main/java'
+            srcDirs 'src/main/gen'
+        }
+        resources {
+            srcDirs 'src/main/resources'
+        }
+    }
+}
 
 repositories {
     mavenCentral()
@@ -30,3 +50,32 @@ patchPluginXml {
       </ul>
     """
 }
+
+task generateParser(type: GenerateParser) {
+    // source bnf file
+    source = "src/main/resources/MDX.bnf"
+
+    // optional, task-specific root for the generated files. Default: none
+    targetRoot = 'src/main/gen'
+
+    // path to a parser file, relative to the targetRoot
+    pathToParser = './parser/MDXParser'
+
+    // path to a directory with generated psi files, relative to the targetRoot
+    pathToPsiRoot = './psi'
+}
+
+task generateLexer(type: GenerateLexer) {
+    // source flex file
+    source = "src/main/resources/MDX.flex"
+
+    // target directory for lexer
+    targetDir = "src/main/gen/com/github/xuyuanxiang/intellij/plugin/mdx"
+
+    // target classname, target file will be targetDir/targetClass.java
+    targetClass = "MDXLexer"
+}
+
+generateLexer.dependsOn(generateParser)
+buildPlugin.dependsOn(generateLexer)
+runIde.dependsOn(generateLexer)
