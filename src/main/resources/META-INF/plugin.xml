@@ -32,7 +32,8 @@
     <depends>JavaScript</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
+        <fileType name="MDX" extensions="md;mdx"
+                  implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXFileType" fieldName="INSTANCE"/>
     </extensions>
 
     <actions>

@@ -19,8 +19,6 @@ intellij {
     version 'IU-2019.2'
     plugins = ['JavaScriptLanguage', 'markdown']
     pluginName 'MDX'
-    downloadSources false
-    updateSinceUntilBuild false
 }
 
 patchPluginXml {
