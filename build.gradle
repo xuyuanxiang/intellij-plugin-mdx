@@ -53,29 +53,31 @@ patchPluginXml {
 
 task generateParser(type: GenerateParser) {
     // source bnf file
-    source = "src/main/resources/MDX.bnf"
+    source = "src/main/resources/grammars/MDX.bnf"
 
     // optional, task-specific root for the generated files. Default: none
     targetRoot = 'src/main/gen'
 
     // path to a parser file, relative to the targetRoot
-    pathToParser = './parser/MDXParser'
+    pathToParser = 'com/github/xuyuanxiang/intellij/plugin/mdx/parser/MDXPaser.java'
 
     // path to a directory with generated psi files, relative to the targetRoot
-    pathToPsiRoot = './psi'
+    pathToPsiRoot = 'com/github/xuyuanxiang/intellij/plugin/mdx/psi'
 }
 
 task generateLexer(type: GenerateLexer) {
     // source flex file
-    source = "src/main/resources/MDX.flex"
+    source = "src/main/resources/grammars/MDX.flex"
 
     // target directory for lexer
     targetDir = "src/main/gen/com/github/xuyuanxiang/intellij/plugin/mdx"
 
     // target classname, target file will be targetDir/targetClass.java
     targetClass = "MDXLexer"
+
+    dependsOn generateParser
 }
 
-generateLexer.dependsOn(generateParser)
-buildPlugin.dependsOn(generateLexer)
-runIde.dependsOn(generateLexer)
+compileJava {
+    dependsOn generateLexer
+}
