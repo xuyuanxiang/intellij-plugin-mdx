@@ -31,9 +31,10 @@ public class MDXFile extends PsiFileBase {
 
         if (visitor instanceof JSElementVisitor) {
             ((JSElementVisitor) visitor).visitJSFile(jsFile);
+            return;
         }
 
-        visitor.visitFile(this);
+        super.accept(visitor);
     }
 
     @Override
