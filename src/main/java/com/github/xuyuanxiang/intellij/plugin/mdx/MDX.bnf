@@ -1,0 +1,20 @@
+{
+  parserClass="com.github.xuyuanxiang.intellij.plugin.mdx.parser.MDXParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="MDX"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.github.xuyuanxiang.intellij.plugin.mdx.psi"
+  psiImplPackage="com.github.xuyuanxiang.intellij.plugin.mdx.psi.impl"
+
+  elementTypeHolderClass="com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXTypes"
+  elementTypeClass="com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXElementType"
+  tokenTypeClass="com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXTokenType"
+}
+
+mdxFile ::= item_*
+
+private item_ ::= (property|COMMENT|CRLF)
+
+property ::= (KEY? SEPARATOR VALUE?) | KEY

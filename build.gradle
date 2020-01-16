@@ -20,6 +20,7 @@ intellij {
     plugins = ['JavaScriptLanguage', 'markdown']
     pluginName 'MDX'
     updateSinceUntilBuild false
+    downloadSources true
 }
 
 patchPluginXml {

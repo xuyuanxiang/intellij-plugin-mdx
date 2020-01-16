@@ -4,11 +4,6 @@
     <vendor email="hi@xuyuanxiang.cn" url="https://github.com/xuyuanxiang">xuyuanxiang</vendor>
     <description><![CDATA[
       <p>Provides support for <a href="https://mdxjs.com/">MDX</a>.</p>
-      <blockquote>
-        <p>MDX is an authorable format that lets you seamlessly write JSX in your Markdown documents. </p>
-        <p>You can import components, such as interactive charts or alerts, and embed them within your content.</p>
-        <p>This makes writing long-form content with components a blast 🚀.</p>
-      </blockquote>
       <p>Features</p>
       <ul>
         <li>Syntax highlighting</li>
@@ -26,8 +21,6 @@
         <fileType name="MDX" extensions="mdx" language="MDX"
                   implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXFileType" fieldName="INSTANCE"/>
         <lang.parserDefinition language="MDX" implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXParserDefinition"/>
-        <lang.ast.factory language="MDX" implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXASTFactory"/>
-        <syntaxHighlighter key="MDX" implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXHighlighter"/>
     </extensions>
 
     <actions>
