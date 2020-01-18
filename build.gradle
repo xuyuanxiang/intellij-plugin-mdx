@@ -1,13 +1,9 @@
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.15'
-    id 'org.jetbrains.grammarkit' version '2019.2'
 }
 apply plugin: 'java'
-apply plugin: 'org.jetbrains.grammarkit'
 apply plugin: 'org.jetbrains.intellij'
-
-import org.jetbrains.grammarkit.tasks.*
 
 group 'com.github.xuyuanxiang'
 version '0.0.1'
@@ -15,17 +11,6 @@ version '0.0.1'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-sourceSets {
-    main {
-        java {
-            srcDirs 'src/main/java'
-            srcDirs 'src/main/gen'
-        }
-        resources {
-            srcDirs 'src/main/resources'
-        }
-    }
-}
 
 repositories {
     mavenCentral()
@@ -36,8 +21,8 @@ dependencies {
 }
 
 intellij {
-    version 'IU-2019.2'
-    plugins = ['JavaScriptLanguage', 'markdown']
+    version 'IU-2019.3'
+    plugins = ['JavaScriptLanguage', 'markdown', 'jsp']
     pluginName 'MDX'
     updateSinceUntilBuild false
     downloadSources true
@@ -49,35 +34,4 @@ patchPluginXml {
          <li><b>0.0.1</b> <em>(2020-01-15)</em> - initial release</li>
       </ul>
     """
-}
-
-task generateParser(type: GenerateParser) {
-    // source bnf file
-    source = "src/main/resources/grammars/MDX.bnf"
-
-    // optional, task-specific root for the generated files. Default: none
-    targetRoot = 'src/main/gen'
-
-    // path to a parser file, relative to the targetRoot
-    pathToParser = 'com/github/xuyuanxiang/intellij/plugin/mdx/parser/MDXPaser.java'
-
-    // path to a directory with generated psi files, relative to the targetRoot
-    pathToPsiRoot = 'com/github/xuyuanxiang/intellij/plugin/mdx/psi'
-}
-
-task generateLexer(type: GenerateLexer) {
-    // source flex file
-    source = "src/main/resources/grammars/MDX.flex"
-
-    // target directory for lexer
-    targetDir = "src/main/gen/com/github/xuyuanxiang/intellij/plugin/mdx"
-
-    // target classname, target file will be targetDir/targetClass.java
-    targetClass = "MDXLexer"
-
-    dependsOn generateParser
-}
-
-compileJava {
-    dependsOn generateLexer
 }

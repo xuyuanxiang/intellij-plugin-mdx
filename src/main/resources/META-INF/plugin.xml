@@ -18,9 +18,25 @@
     <depends>JavaScript</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileType name="MDX" extensions="mdx" language="MDX"
-                  implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXFileType" fieldName="INSTANCE"/>
-        <lang.parserDefinition language="MDX" implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXParserDefinition"/>
+        <fileType
+                name="MDX"
+                extensions="mdx"
+                language="MDX"
+                implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXFileType"
+                fieldName="INSTANCE"
+        />
+<!--        <fileType.fileViewProviderFactory-->
+<!--                filetype="MDX"-->
+<!--                implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFileViewProviderFactory"-->
+<!--        />-->
+        <lang.parserDefinition
+                language="MDX"
+                implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXParserDefinition"
+        />
+        <lang.fileViewProviderFactory
+                language="MDX"
+                implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFileViewProviderFactory"
+        />
     </extensions>
 
     <actions>

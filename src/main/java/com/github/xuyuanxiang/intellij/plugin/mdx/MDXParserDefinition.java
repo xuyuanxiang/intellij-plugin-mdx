@@ -1,25 +1,23 @@
 package com.github.xuyuanxiang.intellij.plugin.mdx;
 
-import com.github.xuyuanxiang.intellij.plugin.mdx.parser.MDXParser;
+import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXElementType;
 import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFile;
-import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXTypes;
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.ParserDefinition;
-import com.intellij.lang.PsiParser;
+import com.intellij.lang.*;
+import com.intellij.lang.javascript.dialects.JSXHarmonyLanguageDialect;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.TokenType;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
+import com.intellij.psi.tree.IStubFileElementType;
 import com.intellij.psi.tree.TokenSet;
+import org.intellij.plugins.markdown.lang.MarkdownLanguage;
 import org.jetbrains.annotations.NotNull;
 
 public class MDXParserDefinition implements ParserDefinition {
-    public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
-    public static final TokenSet COMMENTS = TokenSet.create(MDXTypes.COMMENT);
-    private static final IFileElementType FILE = new IFileElementType(MDXLanguage.INSTANCE);
+    private static final IFileElementType FILE = new IStubFileElementType("MDX File", MDXLanguage.INSTANCE);
 
     @NotNull
     @Override
@@ -30,12 +28,12 @@ public class MDXParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public Lexer createLexer(Project project) {
-        return new MDXLexerAdapter();
+        return new MDXLexer();
     }
 
     @Override
     public PsiParser createParser(Project project) {
-        return new MDXParser();
+        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).createParser(project);
     }
 
     @NotNull
@@ -47,29 +45,36 @@ public class MDXParserDefinition implements ParserDefinition {
     @NotNull
     @Override
     public TokenSet getWhitespaceTokens() {
-        return WHITE_SPACES;
+        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).getWhitespaceTokens();
     }
 
     @NotNull
     @Override
     public TokenSet getCommentTokens() {
-        return COMMENTS;
+        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).getCommentTokens();
     }
 
     @Override
     public SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode left, ASTNode right) {
-        return SpaceRequirements.MAY;
+        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).spaceExistenceTypeBetweenTokens(left, right);
     }
 
     @NotNull
     @Override
     public TokenSet getStringLiteralElements() {
-        return TokenSet.EMPTY;
+        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).getStringLiteralElements();
     }
 
     @NotNull
     @Override
     public PsiElement createElement(ASTNode node) {
-        return MDXTypes.Factory.createElement(node);
+        final IElementType type = node.getElementType();
+        if (type == MDXElementType.JS_OR_PARAGRAPH) {
+            return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(JSXHarmonyLanguageDialect.class)).createElement(node);
+        } else if (type == MDXElementType.JSX_OR_HTML_BLOCK) {
+            return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(JSXHarmonyLanguageDialect.class)).createElement(node);
+        } else {
+            throw new IllegalArgumentException("Unknown element: " + node);
+        }
     }
 }
