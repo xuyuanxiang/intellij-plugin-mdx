@@ -1,8 +1,6 @@
 package com.github.xuyuanxiang.intellij.plugin.mdx;
 
-import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXElementType;
 import com.intellij.psi.tree.IElementType;
-import org.intellij.plugins.markdown.lang.MarkdownTokenTypeSets;
 import org.intellij.plugins.markdown.lang.lexer.MarkdownToplevelLexer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,11 +31,6 @@ public class MDXLexer extends MarkdownToplevelLexer {
             this.myTokenType = super.getTokenType();
             this.myTokenStart = super.getTokenStart();
             this.myTokenEnd = super.getTokenEnd();
-            if (this.myTokenType == MarkdownTokenTypeSets.PARAGRAPH) {
-                this.myTokenType = MDXElementType.JS_OR_PARAGRAPH;
-            } else if (this.myTokenType == MarkdownTokenTypeSets.HTML_BLOCK) {
-                this.myTokenType = MDXElementType.JSX_OR_HTML_BLOCK;
-            }
         }
         return this.myTokenType;
     }

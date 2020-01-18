@@ -1,9 +1,9 @@
 package com.github.xuyuanxiang.intellij.plugin.mdx;
 
-import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXElementType;
 import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFile;
 import com.intellij.lang.*;
-import com.intellij.lang.javascript.dialects.JSXHarmonyLanguageDialect;
+import com.intellij.lang.javascript.JSElementTypes;
+import com.intellij.lang.javascript.psi.e4x.impl.JSXmlLiteralExpressionImpl;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
@@ -69,11 +69,9 @@ public class MDXParserDefinition implements ParserDefinition {
     @Override
     public PsiElement createElement(ASTNode node) {
         final IElementType type = node.getElementType();
-        if (type == MDXElementType.JS_OR_PARAGRAPH) {
-            return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(JSXHarmonyLanguageDialect.class)).createElement(node);
-        } else if (type == MDXElementType.JSX_OR_HTML_BLOCK) {
-            return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(JSXHarmonyLanguageDialect.class)).createElement(node);
-        } else {
+        if (type == JSElementTypes.JSX_XML_LITERAL_EXPRESSION) {
+            return new JSXmlLiteralExpressionImpl(type);
+        } {
             throw new IllegalArgumentException("Unknown element: " + node);
         }
     }
