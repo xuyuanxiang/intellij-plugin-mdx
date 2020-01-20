@@ -6,6 +6,7 @@ import com.intellij.lang.javascript.JSElementTypes;
 import com.intellij.lang.javascript.psi.e4x.impl.JSXmlLiteralExpressionImpl;
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.FileViewProvider;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -71,7 +72,7 @@ public class MDXParserDefinition implements ParserDefinition {
         final IElementType type = node.getElementType();
         if (type == JSElementTypes.JSX_XML_LITERAL_EXPRESSION) {
             return new JSXmlLiteralExpressionImpl(type);
-        } {
+        } else {
             throw new IllegalArgumentException("Unknown element: " + node);
         }
     }

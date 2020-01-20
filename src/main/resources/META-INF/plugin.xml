@@ -4,11 +4,10 @@
     <vendor email="hi@xuyuanxiang.cn" url="https://github.com/xuyuanxiang">xuyuanxiang</vendor>
     <description><![CDATA[
       <p>Provides support for <a href="https://mdxjs.com/">MDX</a>.</p>
-      <p>Features</p>
       <ul>
         <li>Syntax highlighting</li>
         <li>Code completion</li>
-        <li>Code navigation</li>
+        <li>Go to Symbol</li>
         <li>etc.</li>
       </ul>
     ]]></description>
@@ -25,10 +24,6 @@
                 implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXFileType"
                 fieldName="INSTANCE"
         />
-<!--        <fileType.fileViewProviderFactory-->
-<!--                filetype="MDX"-->
-<!--                implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFileViewProviderFactory"-->
-<!--        />-->
         <lang.parserDefinition
                 language="MDX"
                 implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXParserDefinition"
@@ -36,6 +31,10 @@
         <lang.fileViewProviderFactory
                 language="MDX"
                 implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFileViewProviderFactory"
+        />
+        <lang.ast.factory
+                language="MDX"
+                implementationClass="com.github.xuyuanxiang.intellij.plugin.mdx.MDXASTFactory"
         />
     </extensions>
 
