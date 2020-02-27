@@ -2,21 +2,20 @@ package com.github.xuyuanxiang.intellij.plugin.mdx;
 
 import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFile;
 import com.intellij.lang.*;
-import com.intellij.lang.javascript.JSElementTypes;
-import com.intellij.lang.javascript.psi.e4x.impl.JSXmlLiteralExpressionImpl;
-import com.intellij.lexer.Lexer;
+import com.intellij.lang.jsx.JSXHarmonyParserDefinition;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.IStubFileElementType;
-import com.intellij.psi.tree.TokenSet;
-import org.intellij.plugins.markdown.lang.MarkdownLanguage;
+import org.intellij.plugins.markdown.lang.parser.MarkdownParserDefinition;
+import org.intellij.plugins.markdown.lang.parser.MarkdownParserManager;
+import org.intellij.plugins.markdown.lang.parser.PsiBuilderFillingVisitor;
 import org.jetbrains.annotations.NotNull;
 
-public class MDXParserDefinition implements ParserDefinition {
+public class MDXParserDefinition extends MarkdownParserDefinition {
+    private static final Logger LOG = Logger.getInstance("MDX.ParserDefinition");
     private static final IFileElementType FILE = new IStubFileElementType("MDX File", MDXLanguage.INSTANCE);
 
     @NotNull
@@ -27,52 +26,25 @@ public class MDXParserDefinition implements ParserDefinition {
 
     @NotNull
     @Override
-    public Lexer createLexer(Project project) {
-        return new MDXLexer();
-    }
-
-    @Override
-    public PsiParser createParser(Project project) {
-        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).createParser(project);
-    }
-
-    @NotNull
-    @Override
     public IFileElementType getFileNodeType() {
         return FILE;
     }
 
     @NotNull
     @Override
-    public TokenSet getWhitespaceTokens() {
-        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).getWhitespaceTokens();
-    }
+    public PsiParser createParser(Project project) {
+        return (root, builder) -> {
+            PsiBuilder.Marker rootMarker = builder.mark();
 
-    @NotNull
-    @Override
-    public TokenSet getCommentTokens() {
-        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).getCommentTokens();
-    }
+            final org.intellij.markdown.ast.ASTNode parsedTree = MarkdownParserManager.parseContent(builder.getOriginalText(), MarkdownParserManager.FLAVOUR);
 
-    @Override
-    public SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode left, ASTNode right) {
-        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).spaceExistenceTypeBetweenTokens(left, right);
-    }
+            assert builder.getCurrentOffset() == 0;
+            new MDXVisitor(builder).visitNode(parsedTree);
+            assert builder.eof();
 
-    @NotNull
-    @Override
-    public TokenSet getStringLiteralElements() {
-        return LanguageParserDefinitions.INSTANCE.forLanguage(Language.findInstance(MarkdownLanguage.class)).getStringLiteralElements();
-    }
+            rootMarker.done(root);
 
-    @NotNull
-    @Override
-    public PsiElement createElement(ASTNode node) {
-        final IElementType type = node.getElementType();
-        if (type == JSElementTypes.JSX_XML_LITERAL_EXPRESSION) {
-            return new JSXmlLiteralExpressionImpl(type);
-        } {
-            throw new IllegalArgumentException("Unknown element: " + node);
-        }
+            return builder.getTreeBuilt();
+        };
     }
 }

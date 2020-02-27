@@ -8,7 +8,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.MultiplePsiFilesPerDocumentFileViewProvider;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.templateLanguages.TemplateLanguageFileViewProvider;
 import org.intellij.plugins.markdown.lang.MarkdownLanguage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class MDXFileViewProvider extends MultiplePsiFilesPerDocumentFileViewProvider implements TemplateLanguageFileViewProvider {
+public class MDXFileViewProvider extends MultiplePsiFilesPerDocumentFileViewProvider {
     public MDXFileViewProvider(@NotNull PsiManager manager, @NotNull VirtualFile virtualFile, boolean eventSystemEnabled) {
         super(manager, virtualFile, eventSystemEnabled);
     }
@@ -29,25 +28,17 @@ public class MDXFileViewProvider extends MultiplePsiFilesPerDocumentFileViewProv
 
     @NotNull
     @Override
-    public Language getTemplateDataLanguage() {
-        return MarkdownLanguage.INSTANCE;
-    }
-
-    @NotNull
-    @Override
     public Set<Language> getLanguages() {
         LinkedHashSet<Language> languages = new LinkedHashSet<>();
         languages.add(MDXLanguage.INSTANCE);
-        languages.add(JavascriptLanguage.INSTANCE);
+        languages.add(MarkdownLanguage.INSTANCE);
+//        languages.add(JavascriptLanguage.INSTANCE);
         return languages;
     }
 
     @Nullable
     @Override
     protected PsiFile createFile(@NotNull Language lang) {
-        if (lang == MDXLanguage.INSTANCE) {
-            return new MDXFile(this);
-        }
         return LanguageParserDefinitions.INSTANCE.forLanguage(lang).createFile(this);
     }
 
