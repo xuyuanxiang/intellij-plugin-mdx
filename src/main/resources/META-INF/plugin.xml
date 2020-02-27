@@ -4,11 +4,10 @@
     <vendor email="hi@xuyuanxiang.cn" url="https://github.com/xuyuanxiang">xuyuanxiang</vendor>
     <description><![CDATA[
       <p>Provides support for <a href="https://mdxjs.com/">MDX</a>.</p>
-      <p>Features</p>
       <ul>
         <li>Syntax highlighting</li>
         <li>Code completion</li>
-        <li>Code navigation</li>
+        <li>Go to Symbol</li>
         <li>etc.</li>
       </ul>
     ]]></description>

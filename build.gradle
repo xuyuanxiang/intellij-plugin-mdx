@@ -11,6 +11,9 @@ version '0.0.1'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+test {
+    systemProperty "idea.home.path", "~/Library/ApplicationSupport/JetBrains/Toolbox/apps/IDEA-C/ch-0/193.5662.53/"
+}
 
 repositories {
     mavenCentral()
@@ -22,7 +25,7 @@ dependencies {
 
 intellij {
     version 'IU-2019.3'
-    plugins = ['JavaScriptLanguage', 'markdown', 'jsp']
+    plugins = ['JavaScriptLanguage', 'markdown']
     pluginName 'MDX'
     updateSinceUntilBuild false
     downloadSources true
@@ -35,3 +38,4 @@ patchPluginXml {
       </ul>
     """
 }
+
