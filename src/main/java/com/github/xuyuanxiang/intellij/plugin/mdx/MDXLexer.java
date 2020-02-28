@@ -1,52 +1,112 @@
 package com.github.xuyuanxiang.intellij.plugin.mdx;
 
-import com.intellij.lang.javascript.DialectOptionHolder;
+import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXTokenTypes;
 import com.intellij.lang.javascript.JSFlexAdapter;
+import com.intellij.lang.javascript.JSTokenTypes;
+import com.intellij.lang.javascript.dialects.JSXHarmonyLanguageDialect;
+import com.intellij.lexer.LexerBase;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.tree.IElementType;
-import org.intellij.plugins.markdown.lang.lexer.MarkdownToplevelLexer;
+import org.intellij.plugins.markdown.lang.MarkdownTokenTypes;
+import org.intellij.plugins.markdown.lang.lexer.MarkdownLexerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MDXLexer extends MarkdownToplevelLexer {
+public class MDXLexer extends LexerBase {
     private static final Logger LOG = Logger.getInstance("MDX.Lexer");
-    private JSFlexAdapter jsx = new JSFlexAdapter(DialectOptionHolder.JSX);
-    private IElementType myTokenType;
-    private int myTokenStart;
-    private int myTokenEnd;
+    private final JSFlexAdapter jsx = new JSFlexAdapter(JSXHarmonyLanguageDialect.DIALECT_OPTION_HOLDER);
+    private final MarkdownLexerAdapter md = new MarkdownLexerAdapter();
+    private int tokenStart;
+    private int tokenEnd;
+    private int endOffset;
+    private CharSequence originBuffer;
 
     @Override
     public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
-        this.myTokenType = null;
-        super.start(buffer, startOffset, endOffset, initialState);
+        this.endOffset = endOffset;
+        this.originBuffer = buffer;
+        this.tokenStart = startOffset;
+        this.tokenEnd = endOffset;
+        LOG.trace("start: buffer=" + buffer + ", startOffset=" + startOffset + ", endOffset=" + endOffset + ", initialState=" + initialState);
         jsx.start(buffer, startOffset, endOffset, initialState);
+        md.start(buffer, startOffset, endOffset, initialState);
     }
 
     @Override
-    public void advance() {
-        this.myTokenType = null;
-        super.advance();
-        jsx.advance();
+    public int getState() {
+        LOG.trace("getState: jsx=" + jsx.getState() + ", md=" + md.getState());
+        return 0;
     }
-
 
     @Nullable
     @Override
     public IElementType getTokenType() {
-        if (this.myTokenType == null) {
-            this.myTokenType = super.getTokenType();
-            this.myTokenStart = super.getTokenStart();
-            this.myTokenEnd = super.getTokenEnd();
-            LOG.debug("getTokenType: " + jsx.getTokenType());
+        final IElementType type = jsx.getTokenType();
+        IElementType tokenType;
+        if (type == JSTokenTypes.IMPORT_KEYWORD) {
+            tokenType = MDXTokenTypes.IMPORT;
+            this.tokenStart = jsx.getTokenStart();
+            while (true) {
+                if (jsx.getTokenType() == JSTokenTypes.SEMICOLON || md.getTokenType() == MarkdownTokenTypes.EOL) {
+                    this.advance();
+                    break;
+                }
+                LOG.debug("merge: MDX=" + tokenType + ", jsx=" + jsx.getTokenType() + ", markdown=" + md.getTokenType() + ", text=" + jsx.getTokenText());
+                this.advance();
+            }
+            this.tokenEnd = jsx.getTokenEnd();
+        } else if (type == JSTokenTypes.XML_START_TAG_START) {
+            tokenType = MDXTokenTypes.JSX;
+            this.tokenStart = jsx.getTokenStart();
+            while (true) {
+                if (jsx.getTokenType() == JSTokenTypes.XML_END_TAG_START) {
+                    break;
+                }
+                if (jsx.getTokenType() == JSTokenTypes.XML_EMPTY_TAG_END) {
+                    break;
+                }
+                LOG.debug("merge: MDX=" + tokenType + ", jsx=" + jsx.getTokenType() + ", markdown=" + md.getTokenType() + ", text=" + jsx.getTokenText());
+                this.advance();
+            }
+            this.tokenEnd = jsx.getTokenEnd();
+        } else {
+            this.tokenStart = md.getTokenStart();
+            this.tokenEnd = md.getTokenEnd();
+            tokenType = md.getTokenType();
         }
-        return this.myTokenType;
+        return tokenType;
     }
 
+    @Override
     public int getTokenStart() {
-        return this.myTokenType != null ? this.myTokenStart : super.getTokenStart();
+//        LOG.debug("getTokenStart: " + this.tokenStart);
+        return this.tokenStart;
     }
 
+    @Override
     public int getTokenEnd() {
-        return this.myTokenType != null ? this.myTokenEnd : super.getTokenEnd();
+        LOG.debug("getTokenEnd: " + this.tokenEnd);
+        return this.tokenEnd;
     }
+
+    @Override
+    public void advance() {
+        LOG.debug("advance");
+        jsx.advance();
+        md.advance();
+    }
+
+    @NotNull
+    @Override
+    public CharSequence getBufferSequence() {
+        LOG.debug("getBufferSequence: " + this.originBuffer);
+        return this.originBuffer;
+    }
+
+    @Override
+    public int getBufferEnd() {
+        LOG.debug("getBufferEnd: " + this.endOffset);
+        return this.endOffset;
+    }
+
 }

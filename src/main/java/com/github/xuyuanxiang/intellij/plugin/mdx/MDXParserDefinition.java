@@ -1,23 +1,25 @@
 package com.github.xuyuanxiang.intellij.plugin.mdx;
 
 import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXFile;
-import com.intellij.lang.*;
-import com.intellij.lang.jsx.JSXHarmonyParserDefinition;
+import com.github.xuyuanxiang.intellij.plugin.mdx.psi.MDXTokenTypes;
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.ParserDefinition;
+import com.intellij.lang.PsiParser;
+import com.intellij.lexer.Lexer;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.FileViewProvider;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
-import com.intellij.psi.tree.IStubFileElementType;
-import org.intellij.plugins.markdown.lang.parser.MarkdownParserDefinition;
-import org.intellij.plugins.markdown.lang.parser.MarkdownParserManager;
-import org.intellij.plugins.markdown.lang.parser.PsiBuilderFillingVisitor;
+import com.intellij.psi.tree.TokenSet;
+import org.intellij.plugins.markdown.lang.psi.MarkdownPsiFactory;
+import org.intellij.plugins.markdown.lang.stubs.MarkdownStubElementType;
 import org.jetbrains.annotations.NotNull;
 
-public class MDXParserDefinition extends MarkdownParserDefinition {
+public class MDXParserDefinition implements ParserDefinition {
     private static final Logger LOG = Logger.getInstance("MDX.ParserDefinition");
-    private static final IFileElementType FILE = new IStubFileElementType("MDX File", MDXLanguage.INSTANCE);
-
     @NotNull
     @Override
     public PsiFile createFile(FileViewProvider viewProvider) {
@@ -27,24 +29,52 @@ public class MDXParserDefinition extends MarkdownParserDefinition {
     @NotNull
     @Override
     public IFileElementType getFileNodeType() {
-        return FILE;
+        return MDXTokenTypes.FILE;
+    }
+
+    @NotNull
+    @Override
+    public Lexer createLexer(Project project) {
+        return new MDXLexer();
     }
 
     @NotNull
     @Override
     public PsiParser createParser(Project project) {
-        return (root, builder) -> {
-            PsiBuilder.Marker rootMarker = builder.mark();
+        return new MDXParser();
+    }
 
-            final org.intellij.markdown.ast.ASTNode parsedTree = MarkdownParserManager.parseContent(builder.getOriginalText(), MarkdownParserManager.FLAVOUR);
+    @NotNull
+    @Override
+    public PsiElement createElement(ASTNode node) {
+        final IElementType type = node.getElementType();
+        LOG.debug("createElement: " + type);
+        return type instanceof MarkdownStubElementType
+                ? ((MarkdownStubElementType)type).createElement(node)
+                : MarkdownPsiFactory.INSTANCE.createElement(node);
+    }
 
-            assert builder.getCurrentOffset() == 0;
-            new MDXVisitor(builder).visitNode(parsedTree);
-            assert builder.eof();
+    @NotNull
+    @Override
+    public SpaceRequirements spaceExistenceTypeBetweenTokens(ASTNode left, ASTNode right) {
+        return SpaceRequirements.MAY;
+    }
 
-            rootMarker.done(root);
+    @NotNull
+    @Override
+    public TokenSet getWhitespaceTokens() {
+        return TokenSet.create();
+    }
 
-            return builder.getTreeBuilt();
-        };
+    @NotNull
+    @Override
+    public TokenSet getCommentTokens() {
+        return TokenSet.EMPTY;
+    }
+
+    @NotNull
+    @Override
+    public TokenSet getStringLiteralElements() {
+        return TokenSet.EMPTY;
     }
 }
